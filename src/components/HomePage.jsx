@@ -8,27 +8,41 @@ import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import Input from "@mui/material/Input";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import SideBar from "./SideBar";
-import TextField from "@mui/material/TextField";
+import Grid from "@mui/material/Grid";
+import moment from "moment";
 
 function ResponsiveDrawer() {
   const [messages, setMessages] = useState([]);
   const [showmessage, setShowMessage] = useState(false);
-  const [textMessage, setTextMessage] = useState();
+  const [textMessage, setTextMessage] = useState("");
+  const ListMessage = useRef(null);
+  const msTillEndOfDay = moment()
+    .endOf("day")
+    .add(1, "seconds")
+    .diff(moment(), "milliseconds");
 
   const sendingMessage = () => {
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getUTCMonth();
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const min = date.getMinutes();
     if (!textMessage || textMessage.trim() === "") {
       alert("field is empty");
-      console.log(textMessage);
     } else {
       const messagesArray = {
         id: Math.random().toString(36).substr(2, 10),
-        date: new Date().toString(),
         message: textMessage,
+        timeOfMessage: `${hours}:${min}`,
+        dayOfMessage: `${day}/${month}/${year}`,
+        typeOfMessage: { S: "Sender", R: "Reciever" },
       };
+
       setMessages([...messages, messagesArray]);
       setTextMessage("");
       setShowMessage(true);
@@ -41,6 +55,12 @@ function ResponsiveDrawer() {
       sendingMessage();
     }
   };
+
+  useEffect(() => {
+    if (ListMessage.current) {
+      ListMessage.current.scrollTop = ListMessage.current.scrollHeight;
+    }
+  }, [messages]);
 
   const ariaLabel = { "aria-label": "description" };
   const drawerWidth = 240;
@@ -65,55 +85,104 @@ function ResponsiveDrawer() {
             height: "40pc",
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
           }}
         >
-          <Chip avatar={<Avatar>H</Avatar>} label="Avatar" />
+          <Chip avatar={<Avatar>H</Avatar>} label="User 1" />
+
           {showmessage && (
             <List
+              ref={ListMessage}
               sx={{
                 backgroundColor: "white",
-                width: "100px",
                 overflow: "auto",
+                display: "flex",
+                flexDirection: "column",
+                height: "700px",
+                mt: 2,
               }}
             >
-              {messages.map((item) => (
-                <ListItem key={item.id}>
-                  <ListItemText
-                    primary={"User 1"}
-                    secondary={
-                      <React.Fragment>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          sx={{ color: "text.primary", display: "inline" }}
-                        >
-                          {item.message}
-                        </Typography>
-                        {""}
-                      </React.Fragment>
-                    }
-                  />
-                </ListItem>
+              {messages.map((item, index) => (
+                <>
+                  <Grid container spacing={1}>
+                    <Grid
+                      size={5}
+                      key={index}
+                      sx={{
+                        backgroundColor: "#f0f0f0",
+                        borderRadius: 2,
+                        p: 1,
+                        m: 1,
+                      }}
+                    >
+                      {item.dayOfMessage}
+                    </Grid>
+                  </Grid>
+                  <ListItem
+                    key={item.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: "#f0f0f0",
+                        borderRadius: 2,
+                        p: 1,
+                        maxWidth: "80%",
+                        wordWrap: "break-word",
+                      }}
+                    >
+                      <ListItemText
+                        primary={item.message}
+                        secondary={
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            sx={{
+                              color: "text.secondary",
+                              display: "block",
+                              fontSize: "0.75rem",
+                              textAlign: "right",
+                            }}
+                          >
+                            {item.timeOfMessage}
+                          </Typography>
+                        }
+                        primaryTypographyProps={{
+                          sx: {
+                            fontSize: "0.875rem",
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ListItem>
+                </>
               ))}
             </List>
           )}
+
           <Stack
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              mt: 2,
             }}
           >
             <Box
               component="form"
               sx={{
                 "& > :not(style)": { m: 1 },
+                display: "flex",
+                alignItems: "center",
               }}
               noValidate
               autoComplete="off"
             >
               <Input
+                fullWidth
                 id="standard-basic"
                 label="Standard"
                 variant="standard"
@@ -121,14 +190,13 @@ function ResponsiveDrawer() {
                 onKeyDown={handlEnter}
                 onChange={(e) => setTextMessage(e.target.value)}
                 value={textMessage}
+                sx={{ flex: 1 }}
               />
 
               <Button
                 variant="contained"
                 size="small"
-                onClick={() => {
-                  sendingMessage();
-                }}
+                onClick={sendingMessage}
                 endIcon={<SendIcon />}
               >
                 Send
