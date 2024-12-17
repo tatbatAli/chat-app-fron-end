@@ -13,22 +13,17 @@ import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import SideBar from "./SideBar";
 import Grid from "@mui/material/Grid";
-import moment from "moment";
+import fetchData from "../../Hooks/axios";
 
 function ResponsiveDrawer() {
   const [messages, setMessages] = useState([]);
-  const [showmessage, setShowMessage] = useState(false);
   const [textMessage, setTextMessage] = useState("");
   const ListMessage = useRef(null);
-  const msTillEndOfDay = moment()
-    .endOf("day")
-    .add(1, "seconds")
-    .diff(moment(), "milliseconds");
 
-  const sendingMessage = () => {
+  const sendingMessage = async () => {
     const date = new Date();
     const day = date.getDate();
-    const month = date.getUTCMonth();
+    const month = date.getMonth() + 1;
     const year = date.getFullYear();
     const hours = date.getHours();
     const min = date.getMinutes();
@@ -36,20 +31,26 @@ function ResponsiveDrawer() {
       alert("field is empty");
     } else {
       const messagesArray = {
-        id: Math.random().toString(36).substr(2, 10),
         message: textMessage,
-        timeOfMessage: `${hours}:${min}`,
-        dayOfMessage: `${day}/${month}/${year}`,
+        timeOfMessage: date.toLocaleTimeString(),
+        dayOfMessage: date.toLocaleDateString(),
         typeOfMessage: { S: "Sender", R: "Reciever" },
       };
-
-      setMessages([...messages, messagesArray]);
+      const conversation = [...messages, messagesArray];
+      setMessages(conversation);
       setTextMessage("");
-      setShowMessage(true);
+      console.log(conversation, typeof conversation);
+
+      try {
+        const bodyMessage = await fetchData(conversation);
+        console.log("message been created", bodyMessage); // output : message been created {msg: 'a message has been sent', recieveData: {…}}
+      } catch (error) {
+        throw error;
+      }
     }
   };
 
-  const handlEnter = (e) => {
+  const handlEnter = async (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       sendingMessage();
@@ -89,7 +90,7 @@ function ResponsiveDrawer() {
         >
           <Chip avatar={<Avatar>H</Avatar>} label="User 1" />
 
-          {showmessage && (
+          {messages.length > 0 && (
             <List
               ref={ListMessage}
               sx={{
