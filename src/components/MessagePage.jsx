@@ -13,7 +13,8 @@ import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import SideBar from "./SideBar";
 import Grid from "@mui/material/Grid";
-import fetchData from "../../Hooks/axios";
+import postingMessages from "../../Hooks/postingMessages";
+import fetchUser from "../../Hooks/fetchingUser";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -21,6 +22,7 @@ import CardContent from "@mui/material/CardContent";
 function ResponsiveDrawer() {
   const [messages, setMessages] = useState([]);
   const [textMessage, setTextMessage] = useState("");
+  const [username, setUsername] = useState("");
   const ListMessage = useRef(null);
 
   const sendingMessage = async () => {
@@ -28,21 +30,22 @@ function ResponsiveDrawer() {
     if (!textMessage || textMessage.trim() === "") {
       alert("field is empty");
     } else {
-      const messagesArray = {
+      const messageObject = {
+        user: username,
         message: textMessage,
         timeOfMessage: date.toLocaleTimeString(),
         dayOfMessage: date.toLocaleDateString(),
       };
-      const conversation = [...messages, messagesArray];
+
+      const conversation = [...messages, messageObject];
       setMessages(conversation);
       setTextMessage("");
-      console.log(conversation);
 
       try {
-        const bodyMessage = await fetchData(messagesArray);
+        const bodyMessage = await postingMessages(messageObject);
         console.log("message been created", bodyMessage);
       } catch (error) {
-        throw error;
+        console.log("err sending message", error);
       }
     }
   };
@@ -51,6 +54,7 @@ function ResponsiveDrawer() {
     if (e.key === "Enter") {
       e.preventDefault();
       sendingMessage();
+      handleUserSubmit();
     }
   };
 
@@ -60,8 +64,17 @@ function ResponsiveDrawer() {
     }
   }, [messages]);
 
-  const ariaLabel = { "aria-label": "description" };
-  const drawerWidth = 240;
+  const handleUserSubmit = async (e) => {
+    const username = e.target.value;
+    if (username.tirm()) {
+      try {
+        const fetchedUser = await fetchUser({ user: username });
+        console.log(fetchUser);
+      } catch (error) {
+        console.log("cheking user err", error);
+      }
+    }
+  };
 
   return (
     <Grid container spacing={2} sx={{ height: "100vh" }}>
@@ -136,26 +149,29 @@ function ResponsiveDrawer() {
                       borderRadius: 1,
                     }}
                   >
+                    <Grid container spacing={1}>
+                      <Grid>
+                        <Box
+                          sx={{
+                            backgroundColor: "#f0f0f0",
+                            borderRadius: 2,
+                            p: 1,
+                            m: 1,
+                          }}
+                        >
+                          {new Date().toLocaleDateString()}
+                        </Box>
+                      </Grid>
+                    </Grid>
                     {messages.map((item, index) => (
                       <Box key={index}>
-                        <Grid container spacing={1}>
-                          <Grid item>
-                            <Box
-                              sx={{
-                                backgroundColor: "#f0f0f0",
-                                borderRadius: 2,
-                                p: 1,
-                                m: 1,
-                              }}
-                            >
-                              {item.dayOfMessage}
-                            </Box>
-                          </Grid>
-                        </Grid>
                         <ListItem
                           sx={{
                             display: "flex",
-                            justifyContent: "flex-start",
+                            justifyContent:
+                              item.user === "User 1"
+                                ? "flex-start"
+                                : "flex-end",
                             mb: 1,
                           }}
                         >
@@ -233,6 +249,13 @@ function ResponsiveDrawer() {
                     >
                       Send
                     </Button>
+                    <Input
+                      fullWidth
+                      placeholder="Enter Your usernmae"
+                      onKeyDown={handlEnter}
+                      onChange={(e) => setUsername(e.target.value)}
+                      value={username}
+                    />
                   </Box>
                 </Stack>
               </Stack>
