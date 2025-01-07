@@ -18,12 +18,47 @@ import fetchUser from "../../Hooks/fetchingUser";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { io } from "socket.io-client";
+import axios from "axios";
+
+const socket = io("http://localhost:5000");
 
 function ResponsiveDrawer() {
   const [messages, setMessages] = useState([]);
   const [textMessage, setTextMessage] = useState("");
-  const [username, setUsername] = useState("");
+  const [currentUsername, setCurrentUsername] = useState("");
+  const [port, setPort] = useState(null);
   const ListMessage = useRef(null);
+
+  socket.on("connect", () => {
+    socket.on("recieved message", (messages) => {
+      setMessages(messages);
+    });
+  });
+
+  useEffect(() => {
+    const determinPort = () => {
+      const currentPort = window.location.port;
+      setPort(currentPort);
+
+      switch (currentPort) {
+        case "5173":
+          setCurrentUsername("user 1");
+          break;
+        case "4000":
+          setCurrentUsername("user 2");
+          break;
+        default:
+          break;
+      }
+    };
+
+    determinPort();
+  }, []);
 
   const sendingMessage = async () => {
     const date = new Date();
@@ -31,7 +66,7 @@ function ResponsiveDrawer() {
       alert("field is empty");
     } else {
       const messageObject = {
-        user: username,
+        user: currentUsername,
         message: textMessage,
         timeOfMessage: date.toLocaleTimeString(),
         dayOfMessage: date.toLocaleDateString(),
@@ -39,11 +74,11 @@ function ResponsiveDrawer() {
 
       const conversation = [...messages, messageObject];
       setMessages(conversation);
+      socket.emit("send message", conversation);
       setTextMessage("");
 
       try {
         const bodyMessage = await postingMessages(messageObject);
-        console.log("message been created", bodyMessage);
       } catch (error) {
         console.log("err sending message", error);
       }
@@ -65,15 +100,36 @@ function ResponsiveDrawer() {
   }, [messages]);
 
   const handleUserSubmit = async (e) => {
-    const username = e.target.value;
-    if (username.tirm()) {
+    if (e) {
+      e.preventDefault();
       try {
-        const fetchedUser = await fetchUser({ user: username });
-        console.log(fetchUser);
+        const fetchedUser = await fetchUser({ user: currentUsername });
       } catch (error) {
         console.log("cheking user err", error);
       }
     }
+  };
+
+  useEffect(() => {
+    const chekingMessages = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/checkMessages");
+        if (response.data.hasMessages) {
+          const messages = await axios.get("http://localhost:5000");
+          const fetchedData = messages.data;
+          setMessages(fetchedData);
+        } else {
+          console.log("no messages in db");
+        }
+      } catch (error) {
+        console.log("cheking user err", error);
+      }
+    };
+    chekingMessages();
+  }, []);
+
+  const handleUserChange = (e) => {
+    setCurrentUsername(e.target.value);
   };
 
   return (
@@ -165,13 +221,27 @@ function ResponsiveDrawer() {
                     </Grid>
                     {messages.map((item, index) => (
                       <Box key={index}>
+                        {/* <Grid container spacing={1}>
+                          <Grid>
+                            <Box
+                              sx={{
+                                backgroundColor: "#f0f0f0",
+                                borderRadius: 2,
+                                p: 1,
+                                m: 1,
+                              }}
+                            >
+                              {item.dayOfMessage}
+                            </Box>
+                          </Grid>
+                        </Grid> */}
                         <ListItem
                           sx={{
                             display: "flex",
                             justifyContent:
-                              item.user === "User 1"
-                                ? "flex-start"
-                                : "flex-end",
+                              item.user === currentUsername
+                                ? "flex-end"
+                                : "flex-start",
                             mb: 1,
                           }}
                         >
@@ -249,13 +319,20 @@ function ResponsiveDrawer() {
                     >
                       Send
                     </Button>
-                    <Input
-                      fullWidth
-                      placeholder="Enter Your usernmae"
-                      onKeyDown={handlEnter}
-                      onChange={(e) => setUsername(e.target.value)}
-                      value={username}
-                    />
+                    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                      <InputLabel id="demo-select-small-label">User</InputLabel>
+                      <Select
+                        labelId="demo-select-small-label"
+                        id="demo-select-small"
+                        value={currentUsername}
+                        label="User"
+                        onChange={handleUserChange}
+                      >
+                        <MenuItem value={currentUsername}>
+                          {currentUsername}
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
                   </Box>
                 </Stack>
               </Stack>

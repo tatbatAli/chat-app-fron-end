@@ -2,8 +2,8 @@ import axios from "axios";
 
 const fetchUser = async (username) => {
   try {
-    const fetchingResponse = await axios.get("http://localhost:5000", {
-      params: username,
+    const fetchingResponse = await axios.post("http://localhost:5000", {
+      user: username,
     });
     return fetchingResponse;
   } catch (error) {
