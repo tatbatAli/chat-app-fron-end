@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import App from "./components/MessagePage.jsx";
+import SingInPage from "./components/SignUp";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <SingInPage />
   </StrictMode>
 );

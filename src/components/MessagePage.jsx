@@ -128,10 +128,6 @@ function ResponsiveDrawer() {
     chekingMessages();
   }, []);
 
-  const handleUserChange = (e) => {
-    setCurrentUsername(e.target.value);
-  };
-
   return (
     <Grid container spacing={2} sx={{ height: "100vh" }}>
       <Grid item xs={2}>
@@ -326,7 +322,6 @@ function ResponsiveDrawer() {
                         id="demo-select-small"
                         value={currentUsername}
                         label="User"
-                        onChange={handleUserChange}
                       >
                         <MenuItem value={currentUsername}>
                           {currentUsername}

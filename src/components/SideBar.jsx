@@ -14,21 +14,20 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Avatar from "@mui/material/Avatar";
-import HomeIcon from "../Icons/homeIcon";
+import LoginIcon from "@mui/icons-material/Login";
 
 function SideBar() {
   const drawerWidth = 240;
 
   const arrayIcon = [
     <Avatar>H</Avatar>,
-    <HomeIcon />,
     <Badge badgeContent={4} color="primary">
       <MailIcon />
     </Badge>,
     <NotificationsIcon />,
     <SettingsIcon />,
   ];
-  const items = ["", "Home", "Messages", "Notification", "Settings"];
+  const items = ["", "Messages", "Notification", "Settings"];
 
   const drawer = (
     <div>
