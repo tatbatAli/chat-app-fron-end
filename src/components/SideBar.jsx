@@ -15,50 +15,75 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Avatar from "@mui/material/Avatar";
 import LoginIcon from "@mui/icons-material/Login";
+import { Link } from "react-router-dom";
+import HomeIcon from "@mui/icons-material/Home";
+
+const drawerWidth = 240;
+
+const arrayIcon = [
+  <Avatar>H</Avatar>,
+  <HomeIcon />,
+  <Badge badgeContent={0} color="primary">
+    <MailIcon />
+  </Badge>,
+  <NotificationsIcon />,
+  <SettingsIcon />,
+];
+
+const items = [
+  { text: "", path: "/" },
+  { text: "Home", path: "/HomePage" },
+  { text: "Messages", path: "/MessagePage" },
+  { text: "Notification", path: "/notifications" },
+  { text: "Settings", path: "/settings" },
+];
 
 function SideBar() {
-  const drawerWidth = 240;
-
-  const arrayIcon = [
-    <Avatar>H</Avatar>,
-    <Badge badgeContent={4} color="primary">
-      <MailIcon />
-    </Badge>,
-    <NotificationsIcon />,
-    <SettingsIcon />,
-  ];
-  const items = ["", "Messages", "Notification", "Settings"];
-
   const drawer = (
     <div>
       <List>
-        {items.map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>{arrayIcon[index % arrayIcon.length]}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
+        {items.map((item, index) => (
+          <ListItem
+            key={item.text}
+            component={Link}
+            to={item.path}
+            sx={{
+              color: "inherit",
+              textDecoration: "none",
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)",
+              },
+            }}
+          >
+            <ListItemIcon>{arrayIcon[index % arrayIcon.length]}</ListItemIcon>
+            <ListItemText primary={item.text} />
           </ListItem>
         ))}
       </List>
       <Divider />
-      <ListItemButton>
+      <ListItem
+        component={Link}
+        to="/logout"
+        sx={{
+          color: "inherit",
+          textDecoration: "none",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.04)",
+          },
+        }}
+      >
         <ListItemIcon>
           <LogoutIcon />
         </ListItemIcon>
-        <ListItemText primary={"Log Out"} />
-      </ListItemButton>
+        <ListItemText primary="Log Out" />
+      </ListItem>
     </div>
   );
 
   return (
     <Box>
       <Box>
-        <Box
-          sx={{
-            display: "flex",
-          }}
-        >
+        <Box sx={{ display: "flex" }}>
           <CssBaseline />
           <Box
             component="nav"

@@ -14,7 +14,6 @@ import Button from "@mui/material/Button";
 import SideBar from "./SideBar";
 import Grid from "@mui/material/Grid";
 import postingMessages from "../../Hooks/postingMessages";
-import fetchUser from "../../Hooks/fetchingUser";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -24,10 +23,11 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { io } from "socket.io-client";
 import axios from "axios";
+import postUser from "../../Hooks/postUser";
 
 const socket = io("http://localhost:5000");
 
-function ResponsiveDrawer() {
+function Messages() {
   const [messages, setMessages] = useState([]);
   const [textMessage, setTextMessage] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
@@ -103,7 +103,7 @@ function ResponsiveDrawer() {
     if (e) {
       e.preventDefault();
       try {
-        const fetchedUser = await fetchUser({ user: currentUsername });
+        const postingUser = await postUser({ user: currentUsername });
       } catch (error) {
         console.log("cheking user err", error);
       }
@@ -339,4 +339,4 @@ function ResponsiveDrawer() {
   );
 }
 
-export default ResponsiveDrawer;
+export default Messages;

@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-
-import SingInPage from "./components/SignUp";
+import { BrowserRouter } from "react-router-dom";
+import App from "./components/App";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <SingInPage />
+    <App />
   </StrictMode>
 );

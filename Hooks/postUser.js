@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const fetchUser = async (username) => {
+const postUser = async (username) => {
   try {
     const fetchingResponse = await axios.post("http://localhost:5000", {
       user: username,
@@ -11,4 +11,4 @@ const fetchUser = async (username) => {
   }
 };
 
-export default fetchUser;
+export default postUser;

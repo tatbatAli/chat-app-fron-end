@@ -3,8 +3,9 @@ import SideBar from "./SideBar";
 import Typography from "@mui/material/Typography";
 import { Box, Grid, TextField, Button } from "@mui/material";
 import postingUserData from "../../Hooks/postingUserData";
+import { useNavigate } from "react-router-dom";
 
-function SingInPage() {
+function SignUpPage() {
   const [userData, setUserData] = useState([]);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -21,42 +22,44 @@ function SingInPage() {
     setPasswordConfirmation(e.target.value);
   };
 
+  const navigate = useNavigate();
+
+  const passwordPattern =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_./\'":])[A-Za-z\d!@#$%^&*()_./\'":]{8,}$/;
+
   const submit = async () => {
     if (
-      !userName ||
-      !userName.trim() ||
-      !password ||
-      !password.trim() ||
-      !passwordConfirmation ||
-      !passwordConfirmation.trim()
+      [userName, password, passwordConfirmation].some((field) => !field?.trim())
     ) {
       alert("fill the fields");
+    } else if (
+      password !== passwordConfirmation ||
+      !passwordPattern.test(password)
+    ) {
+      alert("invalid password");
     } else {
-      const passwordPattern =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-      if (
-        password !== passwordConfirmation ||
-        !passwordPattern.test(password)
-      ) {
-        alert("Invalid Password");
-      } else {
-        const dataObject = {
-          username: userName,
-          password: password,
-          passwordConfirmation: passwordConfirmation,
-        };
+      const dataObject = {
+        username: userName,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      };
 
-        setUserData([...userData, dataObject]);
-        setUserName("");
-        setPassword("");
-        setPasswordConfirmation("");
+      setUserData([...userData, dataObject]);
+      setUserName("");
+      setPassword("");
+      setPasswordConfirmation("");
 
-        try {
-          const bodyData = await postingUserData(dataObject);
-          console.log(bodyData);
-        } catch (error) {
-          console.log("err sending user data", error);
+      try {
+        const bodyData = await postingUserData(dataObject);
+        console.log(bodyData);
+        if (bodyData.success) {
+          console.log("signUp correct", bodyData.success);
+          navigate("/HomePage");
+        } else {
+          console.log("sign up failed", bodyData.success);
         }
+      } catch (error) {
+        console.log("err sending user data");
       }
     }
   };
@@ -162,4 +165,4 @@ function SingInPage() {
   );
 }
 
-export default SingInPage;
+export default SignUpPage;
