@@ -8,13 +8,15 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SideBar from "./SideBar";
-import fetchUser from "../../Hooks/fetchUser";
+import { useNavigate } from "react-router-dom";
+import getUser from "../../Hooks/getUser";
 
 function HomePage() {
   const [search, setSearch] = useState("");
   const [roomId, setRoomId] = useState("");
   const [generatedRoomId, setGeneratedRoomId] = useState(null);
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   const handleSearchChange = (e) => setSearch(e.target.value);
   const handleRoomIdChange = (e) => setRoomId(e.target.value);
@@ -24,23 +26,13 @@ function HomePage() {
     setGeneratedRoomId(newRoomId);
   };
 
-  useEffect(() => {
-    console.log("inside useEffect");
-    const getUser = async () => {
-      try {
-        const data = await fetchUser();
-        console.log(data);
-        if (data) {
-          setUsers(data);
-        } else {
-          console.log(data);
-        }
-      } catch (error) {
-        console.log("err fetching user", error);
-      }
-    };
+  const handleBtnSendMessage = (id) => {
+    navigate(`/MessagePage/${id}`);
+    console.log(id);
+  };
 
-    getUser();
+  useEffect(() => {
+    getUser(setUsers);
   }, []);
 
   return (
@@ -190,9 +182,9 @@ function HomePage() {
                   gap: 1,
                 }}
               >
-                {users.map((user, index) => (
+                {users.map((user) => (
                   <Box
-                    key={index}
+                    key={user._id}
                     sx={{
                       display: "flex",
                       alignItems: "center",
@@ -204,7 +196,14 @@ function HomePage() {
                     }}
                   >
                     <Typography>{user.username}</Typography>
-                    <Button variant="contained" color="primary" size="small">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => {
+                        handleBtnSendMessage(user._id);
+                      }}
+                    >
                       Send Message
                     </Button>
                   </Box>

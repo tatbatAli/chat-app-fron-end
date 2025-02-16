@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/HomePage" element={<HomePage />} />
         <Route path="/" element={<SignUpPage />} />
-        <Route path="/MessagePage" element={<Messages />} />
+        <Route path="/MessagePage/:userId" element={<Messages />} />
       </Routes>
     </BrowserRouter>
   );

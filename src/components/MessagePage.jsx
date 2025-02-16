@@ -24,6 +24,8 @@ import Select from "@mui/material/Select";
 import { io } from "socket.io-client";
 import axios from "axios";
 import postUser from "../../Hooks/postUser";
+import { useParams } from "react-router-dom";
+import fetchUser from "../../Hooks/fetchUser";
 
 const socket = io("http://localhost:5000");
 
@@ -33,6 +35,7 @@ function Messages() {
   const [currentUsername, setCurrentUsername] = useState("");
   const [port, setPort] = useState(null);
   const ListMessage = useRef(null);
+  const { userId } = useParams();
 
   socket.on("connect", () => {
     socket.on("recieved message", (messages) => {
@@ -41,24 +44,23 @@ function Messages() {
   });
 
   useEffect(() => {
-    const determinPort = () => {
-      const currentPort = window.location.port;
-      setPort(currentPort);
-
-      switch (currentPort) {
-        case "5173":
-          setCurrentUsername("user 1");
-          break;
-        case "4000":
-          setCurrentUsername("user 2");
-          break;
-        default:
-          break;
+    const getUser = async () => {
+      try {
+        const UserData = await axios.get(
+          `http://localhost:5000/users/${userId}`
+        );
+        if (UserData.data) {
+          setCurrentUsername(UserData.data.username);
+        } else {
+          console.log("User Data err");
+        }
+      } catch (error) {
+        console.log("catch err", error);
       }
     };
 
-    determinPort();
-  }, []);
+    getUser();
+  }, [userId]);
 
   const sendingMessage = async () => {
     const date = new Date();
