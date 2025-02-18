@@ -25,7 +25,6 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import postUser from "../../Hooks/postUser";
 import { useParams } from "react-router-dom";
-import fetchUser from "../../Hooks/fetchUser";
 
 const socket = io("http://localhost:5000");
 
@@ -33,7 +32,6 @@ function Messages() {
   const [messages, setMessages] = useState([]);
   const [textMessage, setTextMessage] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
-  const [port, setPort] = useState(null);
   const ListMessage = useRef(null);
   const { userId } = useParams();
 
@@ -144,7 +142,7 @@ function Messages() {
               <CardContent>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <Avatar sx={{ bgcolor: "orange", width: 56, height: 56 }}>
-                    N
+                    {currentUsername.charAt(0)}
                   </Avatar>
                   <Typography
                     variant="body2"
@@ -158,7 +156,7 @@ function Messages() {
                     }}
                   >
                     <Typography variant="h6" sx={{ fontWeight: "bolder" }}>
-                      User 2
+                      {currentUsername}
                     </Typography>
                     Be the First To Send Message!!
                   </Typography>
@@ -186,8 +184,12 @@ function Messages() {
                 }}
               >
                 <Chip
-                  avatar={<Avatar sx={{ bgcolor: "orange" }}>N</Avatar>}
-                  label="User 2"
+                  avatar={
+                    <Avatar sx={{ bgcolor: "orange" }}>
+                      {currentUsername.charAt(0)}
+                    </Avatar>
+                  }
+                  label={currentUsername}
                 />
 
                 {messages.length > 0 && (
@@ -317,19 +319,6 @@ function Messages() {
                     >
                       Send
                     </Button>
-                    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                      <InputLabel id="demo-select-small-label">User</InputLabel>
-                      <Select
-                        labelId="demo-select-small-label"
-                        id="demo-select-small"
-                        value={currentUsername}
-                        label="User"
-                      >
-                        <MenuItem value={currentUsername}>
-                          {currentUsername}
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
                   </Box>
                 </Stack>
               </Stack>

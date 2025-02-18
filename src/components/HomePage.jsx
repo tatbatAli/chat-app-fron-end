@@ -5,11 +5,10 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SideBar from "./SideBar";
 import { useNavigate } from "react-router-dom";
-import getUser from "../../Hooks/getUser";
+import fetchUser from "../../Hooks/fetchUser";
+import { useSelector } from "react-redux";
 
 function HomePage() {
   const [search, setSearch] = useState("");
@@ -17,6 +16,7 @@ function HomePage() {
   const [generatedRoomId, setGeneratedRoomId] = useState(null);
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+  const currentUser = useSelector((state) => state.userSlice.username);
 
   const handleSearchChange = (e) => setSearch(e.target.value);
   const handleRoomIdChange = (e) => setRoomId(e.target.value);
@@ -28,11 +28,29 @@ function HomePage() {
 
   const handleBtnSendMessage = (id) => {
     navigate(`/MessagePage/${id}`);
-    console.log(id);
   };
 
   useEffect(() => {
-    getUser(setUsers);
+    const getUser = async () => {
+      try {
+        const data = await fetchUser();
+        console.log(data);
+        const filteredData = data.filter(
+          (user) => user.username !== currentUser
+        );
+
+        console.log(filteredData);
+        if (data) {
+          setUsers(filteredData);
+        } else {
+          console.log("data is null or undefined", filteredData);
+        }
+      } catch (error) {
+        console.log("err fetching user", error);
+      }
+    };
+
+    getUser();
   }, []);
 
   return (
@@ -111,13 +129,6 @@ function HomePage() {
                   <Typography>
                     Room ID: <strong>{generatedRoomId}</strong>
                   </Typography>
-                  <IconButton
-                    onClick={() =>
-                      navigator.clipboard.writeText(generatedRoomId)
-                    }
-                  >
-                    <ContentCopyIcon />
-                  </IconButton>
                 </Box>
               )}
             </Box>

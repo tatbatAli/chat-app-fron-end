@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import SideBar from "./SideBar";
 import Typography from "@mui/material/Typography";
 import { Box, Grid, TextField, Button } from "@mui/material";
-import postingUserData from "../../Hooks/postingUserData";
+import postingUserSignUpData from "../../Hooks/postingUserSignUpData";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../redux/userSlice";
 
 function SignUpPage() {
   const [userData, setUserData] = useState([]);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const dispatch = useDispatch();
 
   const handleUserName = (e) => {
     setUserName(e.target.value);
@@ -50,16 +52,17 @@ function SignUpPage() {
       setPasswordConfirmation("");
 
       try {
-        const bodyData = await postingUserData(dataObject);
-        console.log(bodyData);
+        const bodyData = await postingUserSignUpData(dataObject);
+        const user = bodyData.User_Data.username;
+        console.log(user);
+        dispatch(setUser(user));
         if (bodyData.success) {
-          console.log("signUp correct", bodyData.success);
           navigate("/HomePage");
         } else {
           console.log("sign up failed", bodyData.success);
         }
       } catch (error) {
-        console.log("err sending user data");
+        console.log("err sending user data", error);
       }
     }
   };
@@ -67,13 +70,9 @@ function SignUpPage() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
-        <Grid item xs={2}>
-          <SideBar />
-        </Grid>
-
         <Grid
           item
-          xs={10}
+          xs={12}
           sx={{ backgroundColor: "lightblue", color: "black" }}
         >
           <Box sx={{ p: 2 }}>
